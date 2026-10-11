@@ -95,44 +95,42 @@ python -m unittest discover -s tests -v
 
 ## Model and objective
 
-For a clean transmission image $T$, reflection image $R$, and observed mixture $I$,
+For a clean transmission image `T`, reflection image `R`, and observed mixture `I`,
 the generator uses the simple approximation
 
-$$
-I = (1-\alpha)T + \alpha R,
-$$
+```text
+I = (1 - alpha) * T + alpha * R
+```
 
 with clipping to the display range. The clipping means the equality may not hold after
 clipping at saturated pixels.
 
 The toy initial estimator subtracts a scaled, blurred version of the observation:
 
-$$
-T_0 = \mathrm{clip}\bigl(I-\beta\,G_\sigma(I),\,0,\,1\bigr).
-$$
+```text
+T0 = clip(I - beta * G_sigma(I), 0, 1)
+```
 
 This is intentionally crude. It gives the class a common starting point without a
 pretrained network. It is not intended to model a competitive reflection-removal
 algorithm.
 
-For a candidate transmission $T$, the residual is $R(T)=I-T$. With forward finite
-differences $D_x,D_y$, define the per-pixel gradient inner product
+For a candidate transmission `T`, the residual is `R(T) = I - T`. With forward finite
+differences `D_x` and `D_y`, define the per-pixel gradient inner product
 
-$$
-q_p(T) =
-\sum_c \left[
-(D_xT)_{p,c}(D_x(I-T))_{p,c}
-+ (D_yT)_{p,c}(D_y(I-T))_{p,c}
-\right].
-$$
+```text
+q_p(T) = sum_c [
+    D_x(T)[p,c] * D_x(I - T)[p,c]
+  + D_y(T)[p,c] * D_y(I - T)[p,c]
+]
+```
 
 The refinement objective is
 
-$$
-\mathcal{L}(T)=
-\lambda_{\mathrm{fid}}\frac{\lVert T-T_0\rVert_2^2}{HWC}
-+ \lambda_{\mathrm{excl}}\frac{1}{HW}\sum_p q_p(T)^2.
-$$
+```text
+L(T) = lambda_fid * ||T - T0||_2^2 / (H * W * C)
+     + lambda_excl * sum_p(q_p(T)^2) / (H * W)
+```
 
 The first term keeps refinement near the initial estimate. The second penalizes
 coincident, similarly oriented transmission/residual gradients. This is a deliberately
@@ -145,8 +143,8 @@ sweep it alongside the learning rate and inspect both metrics and visual results
 
 ## Routing and budget
 
-The router scores each fixed-size tile by mean absolute gradient overlap in $T_0$ and
-$I-T_0$. Scores come only from the observation and initial estimate; clean targets
+The router scores each fixed-size tile by mean absolute gradient overlap in `T0` and
+`I - T0`. Scores come only from the observation and initial estimate; clean targets
 are used only for evaluation.
 
 - **Adaptive:** refine the tiles with the largest score.
