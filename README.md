@@ -108,7 +108,7 @@ clipping at saturated pixels.
 The toy initial estimator subtracts a scaled, blurred version of the observation:
 
 $$
-T_0 = \operatorname{clip}\bigl(I-\beta\,G_\sigma(I),\,0,\,1\bigr).
+T_0 = \mathrm{clip}\bigl(I-\beta\,G_\sigma(I),\,0,\,1\bigr).
 $$
 
 This is intentionally crude. It gives the class a common starting point without a
