@@ -95,44 +95,44 @@ python -m unittest discover -s tests -v
 
 ## Model and objective
 
-For a clean transmission image \(T\), reflection image \(R\), and observed mixture \(I\),
+For a clean transmission image $T$, reflection image $R$, and observed mixture $I$,
 the generator uses the simple approximation
 
-\[
+$$
 I = (1-\alpha)T + \alpha R,
-\]
+$$
 
 with clipping to the display range. The clipping means the equality may not hold after
 clipping at saturated pixels.
 
 The toy initial estimator subtracts a scaled, blurred version of the observation:
 
-\[
+$$
 T_0 = \operatorname{clip}\bigl(I-\beta\,G_\sigma(I),\,0,\,1\bigr).
-\]
+$$
 
 This is intentionally crude. It gives the class a common starting point without a
 pretrained network. It is not intended to model a competitive reflection-removal
 algorithm.
 
-For a candidate transmission \(T\), the residual is \(R(T)=I-T\). With forward finite
-differences \(D_x,D_y\), define the per-pixel gradient inner product
+For a candidate transmission $T$, the residual is $R(T)=I-T$. With forward finite
+differences $D_x,D_y$, define the per-pixel gradient inner product
 
-\[
+$$
 q_p(T) =
 \sum_c \left[
 (D_xT)_{p,c}(D_x(I-T))_{p,c}
 + (D_yT)_{p,c}(D_y(I-T))_{p,c}
 \right].
-\]
+$$
 
 The refinement objective is
 
-\[
+$$
 \mathcal{L}(T)=
 \lambda_{\mathrm{fid}}\frac{\lVert T-T_0\rVert_2^2}{HWC}
 + \lambda_{\mathrm{excl}}\frac{1}{HW}\sum_p q_p(T)^2.
-\]
+$$
 
 The first term keeps refinement near the initial estimate. The second penalizes
 coincident, similarly oriented transmission/residual gradients. This is a deliberately
@@ -145,8 +145,8 @@ sweep it alongside the learning rate and inspect both metrics and visual results
 
 ## Routing and budget
 
-The router scores each fixed-size tile by mean absolute gradient overlap in \(T_0\) and
-\(I-T_0\). Scores come only from the observation and initial estimate; clean targets
+The router scores each fixed-size tile by mean absolute gradient overlap in $T_0$ and
+$I-T_0$. Scores come only from the observation and initial estimate; clean targets
 are used only for evaluation.
 
 - **Adaptive:** refine the tiles with the largest score.
